@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Agenda de Contactos{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="mb-4"><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+        
+        <!-- Recordatorios de hoy -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5><i class="fas fa-bell"></i> Recordatorios de Hoy</h5>
+            </div>
+            <div class="card-body">
+                {% if recordatorios %}
+                    {% for recordatorio in recordatorios %}
+                    <div class="alert alert-warning">
+                        <strong>{{ recordatorio[1] }} {{ recordatorio[2] }}</strong>
+                        <br><small>{{ recordatorio[4] }} - 
+                        {{ recordatorio[3].strftime('%d/%m/%Y') if recordatorio[3] else 'Sin fecha' }}</small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No hay recordatorios para hoy</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Eventos de la semana -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-calendar-week"></i> Eventos de esta Semana</h5>
+            </div>
+            <div class="card-body">
+                {% if eventos_semana %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Contacto</th>
+                                    <th>Categoría</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for evento in eventos_semana %}
+                                <tr>
+                                    <td>{{ evento[1] }} {{ evento[2] }}</td>
+                                    <td><span class="badge bg-secondary">{{ evento[4] }}</span></td>
+                                    <td>{{ evento[3].strftime('%d/%m/%Y') if evento[3] else 'Sin fecha' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay eventos esta semana</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Acciones rápidas -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-bolt"></i> Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('agregar_contacto') }}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Nuevo Contacto
+                    </a>
+                    <a href="{{ url_for('listar_contactos') }}" class="btn btn-primary">
+                        <i class="fas fa-users"></i> Ver Contactos
+                    </a>
+                    <button class="btn btn-info" onclick="actualizarRecordatorios()">
+                        <i class="fas fa-sync"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Estadísticas de categorías -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-chart-pie"></i> Categorías</h5>
+            </div>
+            <div class="card-body">
+                {% set categorias = db.obtener_todas_categorias() %}
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h3 class="text-success">{{ categorias|length }}</h3>
+                        <small class="text-muted">Total</small>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-info">{{ (categorias|length - 4) if categorias|length > 4 else 0 }}</h3>
+                        <small class="text-muted">Personalizadas</small>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('listar_categorias') }}" class="btn btn-sm btn-outline-success w-100">
+                        <i class="fas fa-cog"></i> Gestionar
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Historial reciente -->
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5><i class="fas fa-history"></i> Actividad Reciente</h5>
+            </div>
+            <div class="card-body">
+                {% if historial %}
+                    {% for cambio in historial %}
+                    <div class="small mb-2 pb-2 border-bottom">
+                        <strong>{{ cambio[0] }}</strong>
+                        <br><small class="text-muted">{{ cambio[1].strftime('%d/%m/%Y %H:%M') }}</small>
+                    </div>
+                    {% endfor %}
+                    <a href="{{ url_for('historial') }}" class="btn btn-sm btn-outline-dark mt-2">Ver Todo</a>
+                {% else %}
+                    <p class="text-muted small">No hay actividad reciente</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

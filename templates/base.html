@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agenda de Contactos{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="{{ url_for('index') }}">
+                <i class="fas fa-home"></i> Inicio
+            </a>
+            <a class="nav-link" href="{{ url_for('listar_contactos') }}">
+                <i class="fas fa-users"></i> Contactos
+            </a>
+            <a class="nav-link" href="{{ url_for('listar_categorias') }}">
+                <i class="fas fa-tags"></i> Categorías
+            </a>
+            <a class="nav-link" href="{{ url_for('agregar_contacto') }}">
+                <i class="fas fa-plus"></i> Agregar
+            </a>
+            <a class="nav-link" href="{{ url_for('historial') }}">
+                <i class="fas fa-history"></i> Historial
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

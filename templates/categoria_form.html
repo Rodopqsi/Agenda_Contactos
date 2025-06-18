@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }} - Agenda{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>
+                    <i class="fas fa-{{ 'edit' if categoria else 'plus' }}"></i> 
+                    {{ titulo }}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre de la Categoría *</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" 
+                               value="{{ categoria[1] if categoria else '' }}" 
+                               required maxlength="50" 
+                               placeholder="Ej: Colegio, Médicos, Vecinos...">
+                        <div class="form-text">Máximo 50 caracteres</div>
+                    </div>
+                    
+                    {% if categoria %}
+                    <div class="mb-3">
+                        <label class="form-label">Información</label>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Esta categoría tiene {{ db.contar_contactos_por_categoria(categoria[0]) }} contactos asociados.
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('listar_categorias') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                        <button type="submit" class="btn btn-{{ 'primary' if categoria else 'success' }}">
+                            <i class="fas fa-save"></i> 
+                            {{ 'Actualizar' if categoria else 'Crear' }} Categoría
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

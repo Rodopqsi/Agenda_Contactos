@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Historial - Agenda{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-history"></i> Historial de Cambios</h1>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver al Dashboard
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Registro de Actividades</h5>
+    </div>
+    <div class="card-body">
+        {% if historial %}
+        <div class="timeline">
+            {% for cambio in historial %}
+            <div class="timeline-item mb-3 pb-3 border-bottom">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <i class="fas fa-circle text-primary me-2"></i>
+                        <strong>{{ cambio[0] }}</strong>
+                    </div>
+                    <small class="text-muted">
+                        {{ cambio[1].strftime('%d/%m/%Y a las %H:%M') }}
+                    </small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No hay historial disponible</h5>
+            <p class="text-muted">Las actividades aparecerán aquí cuando realices cambios en los contactos.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

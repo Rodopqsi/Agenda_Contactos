@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Contactos - Agenda{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-users"></i> Contactos</h1>
+    <a href="{{ url_for('agregar_contacto') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Nuevo Contacto
+    </a>
+</div>
+
+<!-- Filtros y búsqueda -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('listar_contactos') }}" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Filtrar por categoría:</label>
+                <select name="categoria" class="form-select">
+                    <option value="">Todas las categorías</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria[0] }}" 
+                            {{ 'selected' if categoria_seleccionada == categoria[0]|string }}>
+                        {{ categoria[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    <a href="{{ url_for('listar_contactos') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Lista de contactos -->
+<div class="card">
+    <div class="card-header">
+        <h5>Total de contactos: {{ contactos|length }}</h5>
+    </div>
+    <div class="card-body">
+        {% if contactos %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                        <th>Categoría</th>
+                        <th>Evento</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contacto in contactos %}
+                    <tr>
+                        <td>
+                            <strong>{{ contacto[1] }} {{ contacto[2] }}</strong>
+                        </td>
+                        <td>
+                            {% if contacto[3] %}
+                                <a href="tel:{{ contacto[3] }}" class="text-decoration-none">
+                                    <i class="fas fa-phone"></i> {{ contacto[3] }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Sin teléfono</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if contacto[4] %}
+                                <a href="mailto:{{ contacto[4] }}" class="text-decoration-none">
+                                    <i class="fas fa-envelope"></i> {{ contacto[4] }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Sin email</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ contacto[5] }}</span>
+                        </td>
+                        <td>
+                            {% if contacto[6] %}
+                                <span class="badge bg-warning text-dark">
+                                    {{ contacto[6].strftime('%d/%m/%Y') }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Sin evento</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('editar_contacto', contacto_id=contacto[0]) }}" 
+                                    class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        onclick="confirmarEliminar({{ contacto[0] }}, '{{ contacto[1] }} {{ contacto[2] }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No se encontraron contactos</h5>
+            <p class="text-muted">
+                {% if termino_busqueda or categoria_seleccionada %}
+                    Intenta cambiar los filtros de búsqueda
+                {% else %}
+                    ¡Comienza agregando tu primer contacto!
+                {% endif %}
+            </p>
+            <a href="{{ url_for('agregar_contacto') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Agregar Contacto
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar el contacto <strong id="nombreContacto"></strong>?</p>
+                <p class="text-muted">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="formEliminar" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
