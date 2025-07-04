@@ -1,15 +1,15 @@
-/* Estilos personalizados para la agenda - Colores Pasteles y Responsive */
+
 :root {
     /* Colores pasteles */
     --pastel-blue: #B8D4F0;
     --pastel-green: #C8E6C9;
-    --pastel-red: #FFB3BA;
-    --pastel-purple: #E1BEE7;
+    --pastel-red: #ecd5f0;
+    --pastel-purple: #ecd5f0;
     --pastel-yellow: #FFF9C4;
     --pastel-orange: #FFE0B2;
     --pastel-gray: #F5F5F5;
     --pastel-mint: #B2DFDB;
-    --pastel-lavender: #E6E6FA;
+    --pastel-lavender: #E6E6FA; 
     --pastel-peach: #FFCCBC;
     
     /* Colores de texto */
@@ -581,13 +581,13 @@ body {
 }
 
 .btn-secondary {
-    background: linear-gradient(135deg, var(--pastel-gray) 0%, #E8E8E8 100%);
+    background: linear-gradient(135deg, #E8E8E8 0%, #ffffff 100%);
     border: none;
     color: var(--text-primary);
 }
 
 .btn-secondary:hover {
-    background: linear-gradient(135deg, #E8E8E8 0%, #D8D8D8 100%);
+    background: linear-gradient(135deg, #E8E8E8 0%, #ffffff 100%);
     color: var(--text-primary);
 }
 
@@ -2063,7 +2063,7 @@ html {
 /* Estilos para modo oscuro (si el usuario lo prefiere) */
 @media (prefers-color-scheme: dark) {
     :root {
-        --text-primary: #E2E8F0;
+        --text-primary: #7a7a7a;
         --text-secondary: #A0AEC0;
         --pastel-gray: #2D3748;
         --bg-light-pastel: #1A202C;

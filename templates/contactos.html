@@ -41,7 +41,10 @@
                 <select id="filtroCategoriaContacto" class="form-select">
                     <option value="">Todas las categorías</option>
                     {% for categoria in categorias %}
-                    <option value="{{ categoria[1] }}">{{ categoria[1] }}</option>
+                    <option value="{{ categoria[1] }}" 
+                            {% if categoria_seleccionada and categoria[0]|string == categoria_seleccionada %}selected{% endif %}>
+                        {{ categoria[1] }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
@@ -229,6 +232,35 @@
 
 <!-- Script para exportar a Excel -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Script para inicializar filtros desde URL -->
+<script>
+// Función para inicializar filtros desde URL
+function inicializarFiltrosDesdeURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const terminoBusqueda = urlParams.get('buscar');
+    
+    // Si viene un término de búsqueda por URL, colocarlo en el filtro
+    if (terminoBusqueda) {
+        const filtroTexto = document.getElementById('filtroContacto');
+        if (filtroTexto) {
+            filtroTexto.value = terminoBusqueda;
+        }
+    }
+    
+    // Aplicar filtros iniciales si los hay
+    if (terminoBusqueda) {
+        setTimeout(() => {
+            if (window.aplicarFiltrosContactos) {
+                window.aplicarFiltrosContactos();
+            }
+        }, 200);
+    }
+}
+
+// Ejecutar cuando la página esté cargada
+document.addEventListener('DOMContentLoaded', inicializarFiltrosDesdeURL);
+</script>
 
 <!-- Modal de confirmación de eliminación -->
 <div class="modal fade" id="modalEliminar" tabindex="-1">

@@ -452,6 +452,9 @@ function filtrarContactos() {
     if (filtroEstado) {
         filtroEstado.addEventListener('change', aplicarFiltrosContactos);
     }
+    
+    // Exponer la función globalmente para uso desde otros scripts
+    window.aplicarFiltrosContactos = aplicarFiltrosContactos;
 }
 
 function resaltarTextoContacto(texto, termino) {

@@ -88,14 +88,20 @@ class DatabaseManager:
         
         try:
             cursor = conn.cursor()
-            ref_cursor = cursor.var(cx_Oracle.CURSOR)
-            cursor.callproc("contactos_por_categoria", [categoria_id, ref_cursor])
             
-            result_cursor = ref_cursor.getvalue()
-            contactos = result_cursor.fetchall()
-            result_cursor.close()
-            
+            # Usar la misma estructura que obtener_todos_contactos
+            query = """
+                SELECT c.id_contacto, c.nombre, c.apellido, c.telefono, 
+                       c.correo, cat.nombre_categoria, c.fecha_evento, c.descripcion_evento
+                FROM contactos c
+                JOIN categorias cat ON c.id_categoria = cat.id_categoria
+                WHERE c.id_categoria = :categoria_id
+                ORDER BY c.nombre, c.apellido
+            """
+            cursor.execute(query, {'categoria_id': categoria_id})
+            contactos = cursor.fetchall()
             return contactos
+            
         except Exception as e:
             print(f"Error obteniendo contactos por categoría: {e}")
             return []

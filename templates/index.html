@@ -86,7 +86,7 @@
                                         </div>
                                     </td>
                                     <td class="d-none d-md-table-cell">
-                                        <span class="badge bg-secondary-pastel">{{ evento[4] }}</span>
+                                        <span class="badge text-black">{{ evento[4] }}</span>
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
@@ -186,51 +186,7 @@
         </div>
 
         <!-- Historial reciente -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card card-pastel shadow-sm">
-                    <div class="card-header bg-dark-pastel text-white">
-                        <h5 class="mb-0 d-flex align-items-center">
-                            <i class="fas fa-history me-2"></i>
-                            Actividad Reciente
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        {% if historial %}
-                            <div class="timeline-recent">
-                                {% for cambio in historial %}
-                                <div class="timeline-item-recent d-flex align-items-center mb-3 pb-3 border-bottom border-pastel">
-                                    <div class="timeline-dot-recent bg-primary-pastel me-3"></div>
-                                    <div class="flex-grow-1">
-                                        <strong class="text-dark-pastel">{{ cambio[0] }}</strong>
-                                        <br>
-                                        <small class="text-muted">
-                                            <i class="fas fa-clock me-1"></i>
-                                            {{ cambio[1].strftime('%d/%m/%Y %H:%M') }}
-                                        </small>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <div class="text-center">
-                                <a href="{{ url_for('historial') }}" class="btn btn-outline-dark-pastel btn-sm">
-                                    <i class="fas fa-eye me-1"></i>
-                                    Ver historial completo
-                                </a>
-                            </div>
-                        {% else %}
-                            <div class="text-center py-4">
-                                <i class="fas fa-history fa-2x text-muted-pastel mb-3"></i>
-                                <h6 class="text-muted-pastel">No hay actividad reciente</h6>
-                                <p class="text-muted small mb-0">Las actividades aparecerán aquí cuando realices cambios</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        
 
 <!-- Botón flotante para acciones rápidas en móvil -->
 <div class="mobile-fab d-md-none">
