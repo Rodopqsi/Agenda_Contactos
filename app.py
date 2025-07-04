@@ -13,12 +13,15 @@ def index():
     recordatorios = db.obtener_recordatorios_hoy()
     eventos_semana = db.obtener_eventos_semana()
     categorias = db.obtener_todas_categorias()
+    contactos = db.obtener_todos_contactos()
     historial = db.obtener_historial_cambios(5)
     
     return render_template('index.html', 
                             recordatorios=recordatorios,
                             eventos_semana=eventos_semana,
-                            historial=historial,categorias=categorias, db=db)    
+                            contactos=contactos,
+                            historial=historial,
+                            categorias=categorias)    
 @app.route('/contactos')
 def listar_contactos():
     """Listar todos los contactos"""
@@ -50,8 +53,9 @@ def agregar_contacto():
         correo = request.form['correo']
         categoria = int(request.form['categoria'])
         fecha_evento = request.form['fecha_evento'] or None
+        descripcion_evento = request.form['descripcion_evento'] or None
         
-        if db.agregar_contacto(nombre, apellido, telefono, correo, categoria, fecha_evento):
+        if db.agregar_contacto(nombre, apellido, telefono, correo, categoria, fecha_evento, descripcion_evento):
             flash('Contacto agregado exitosamente', 'success')
             return redirect(url_for('listar_contactos'))
         else:
@@ -70,8 +74,9 @@ def editar_contacto(contacto_id):
         correo = request.form['correo']
         categoria = int(request.form['categoria'])
         fecha_evento = request.form['fecha_evento'] or None
+        descripcion_evento = request.form['descripcion_evento'] or None
         
-        if db.actualizar_contacto(contacto_id, nombre, apellido, telefono, correo, categoria, fecha_evento):
+        if db.actualizar_contacto(contacto_id, nombre, apellido, telefono, correo, categoria, fecha_evento, descripcion_evento):
             flash('Contacto actualizado exitosamente', 'success')
             return redirect(url_for('listar_contactos'))
         else:
@@ -136,7 +141,7 @@ def listar_categorias():
             'id': categoria[0],
             'nombre': categoria[1],
             'contactos': conteo,
-            'es_sistema': categoria[0] <= 4  # Las primeras 4 son del sistema
+            'es_sistema': categoria[0] <= 4  
         })
     
     return render_template('categorias.html', categorias=categorias_con_conteo)
@@ -169,8 +174,7 @@ def editar_categoria(categoria_id):
         flash('Categoría no encontrada', 'error')
         return redirect(url_for('listar_categorias'))
     
-    # No permitir editar categorías del sistema
-    if categoria[0] <= 4:  # Usar categoria[0] en lugar de categoria_id
+    if categoria[0] <= 4: 
         flash('No se pueden editar las categorías del sistema', 'error')
         return redirect(url_for('listar_categorias'))
     
@@ -193,7 +197,6 @@ def editar_categoria(categoria_id):
 
 @app.route('/categorias/eliminar/<int:categoria_id>', methods=['POST'])
 def eliminar_categoria(categoria_id):
-    # AGREGAR VALIDACIÓN ANTES DE ELIMINAR
     if categoria_id <= 4:
         flash('No se pueden eliminar las categorías del sistema', 'error')
         return redirect(url_for('listar_categorias'))

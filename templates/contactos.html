@@ -3,48 +3,112 @@
 {% block title %}Contactos - Agenda{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-users"></i> Contactos</h1>
-    <a href="{{ url_for('agregar_contacto') }}" class="btn btn-success">
-        <i class="fas fa-plus"></i> Nuevo Contacto
+<!-- Header responsive -->
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4 gap-3">
+    <h1 class="text-center-mobile">
+        <i class="fas fa-users me-2"></i>
+        <span class="d-none d-sm-inline">Administrar Contactos</span>
+        <span class="d-sm-none">Contactos</span>
+    </h1>
+    <a href="{{ url_for('agregar_contacto') }}" class="btn btn-success w-100-mobile">
+        <i class="fas fa-plus me-2"></i>
+        <span class="d-none d-sm-inline">Nuevo Contacto</span>
+        <span class="d-sm-none">Nuevo</span>
     </a>
 </div>
 
-<!-- Filtros y búsqueda -->
-<div class="card mb-4">
+<!-- Filtros y búsqueda con mejoras móviles -->
+<div class="card mb-4 filtro-contacto-container">
     <div class="card-body">
-        <form method="GET" action="{{ url_for('listar_contactos') }}" class="row g-3">
-            <div class="col-md-4">
+        <div class="row g-2 g-lg-3">
+            <div class="col-12 col-lg-4">
+                <label class="form-label">Buscar contacto:</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" class="form-control" id="filtroContacto" 
+                           placeholder="Nombre, teléfono, email..."
+                           autocomplete="off"
+                           spellcheck="false"
+                           inputmode="text" 
+                           placeholder="Buscar por nombre, teléfono o email..." 
+                           autocomplete="off">
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
                 <label class="form-label">Filtrar por categoría:</label>
-                <select name="categoria" class="form-select">
+                <select id="filtroCategoriaContacto" class="form-select">
                     <option value="">Todas las categorías</option>
                     {% for categoria in categorias %}
-                    <option value="{{ categoria[0] }}" 
-                            {{ 'selected' if categoria_seleccionada == categoria[0]|string }}>
-                        {{ categoria[1] }}
-                    </option>
+                    <option value="{{ categoria[1] }}">{{ categoria[1] }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-4">
-                <label class="form-label">&nbsp;</label>
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Buscar
+            <div class="col-12 col-sm-6 col-lg-3">
+                <label class="form-label">Filtrar por estado:</label>
+                <select id="filtroEstadoContacto" class="form-select">
+                    <option value="">Todos los estados</option>
+                    <option value="con-telefono">Con teléfono</option>
+                    <option value="sin-telefono">Sin teléfono</option>
+                    <option value="con-email">Con email</option>
+                    <option value="sin-email">Sin email</option>
+                    <option value="con-evento">Con evento</option>
+                    <option value="sin-evento">Sin evento</option>
+                </select>
+            </div>
+            <div class="col-12 col-lg-2">
+                <label class="form-label d-none d-lg-block">&nbsp;</label>
+                <div class="d-flex gap-2 mt-lg-0 mt-2">
+                    <button type="button" class="btn btn-outline-secondary flex-fill" 
+                            onclick="limpiarFiltrosContactos()" title="Limpiar filtros">
+                        <i class="fas fa-times me-1"></i>
+                        <span class="d-none d-sm-inline">Limpiar</span>
                     </button>
-                    <a href="{{ url_for('listar_contactos') }}" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Limpiar
-                    </a>
                 </div>
             </div>
-        </form>
+        </div>
+        <div class="row mt-2">
+            <div class="col-12">
+                <div id="indicadorFiltros" class="d-none">
+                    <small class="text-muted">
+                        <i class="fas fa-filter"></i> Filtros activos: 
+                        <span id="filtrosActivos"></span>
+                    </small>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Lista de contactos -->
 <div class="card">
     <div class="card-header">
-        <h5>Total de contactos: {{ contactos|length }}</h5>
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+            <h5 id="contadorContactos" class="mb-0">Total de contactos: {{ contactos|length }}</h5>
+            <div class="btn-group w-100 w-lg-auto" role="group">
+                <div class="dropdown w-100">
+                    <button class="btn btn-sm btn-outline-success dropdown-toggle w-100" 
+                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-file-excel me-1"></i>
+                        <span class="d-none d-sm-inline">Exportar</span>
+                        <span class="d-sm-none">Export</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="exportarContactos()">
+                            <i class="fas fa-file-excel text-success"></i> Excel Simple
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportarContactosAvanzado()">
+                            <i class="fas fa-chart-bar text-info"></i> Excel con Estadísticas
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="imprimirContactos()">
+                            <i class="fas fa-print text-secondary"></i> Imprimir Lista
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="card-body">
         {% if contactos %}
@@ -53,10 +117,10 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Email</th>
-                        <th>Categoría</th>
-                        <th>Evento</th>
+                        <th class="d-none d-md-table-cell">Teléfono</th>
+                        <th class="d-none d-lg-table-cell">Email</th>
+                        <th class="d-none d-sm-table-cell">Categoría</th>
+                        <th class="d-none d-md-table-cell">Evento</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -64,18 +128,39 @@
                     {% for contacto in contactos %}
                     <tr>
                         <td>
-                            <strong>{{ contacto[1] }} {{ contacto[2] }}</strong>
+                            <div class="d-flex flex-column">
+                                <strong>{{ contacto[1] }} {{ contacto[2] }}</strong>
+                                <!-- Información móvil -->
+                                <small class="text-muted d-md-none">
+                                    {% if contacto[3] %}
+                                        <i class="fas fa-phone me-1"></i>{{ contacto[3] }}
+                                    {% endif %}
+                                </small>
+                                <small class="text-muted d-lg-none d-md-block">
+                                    {% if contacto[4] %}
+                                        <i class="fas fa-envelope me-1"></i>{{ contacto[4] }}
+                                    {% endif %}
+                                </small>
+                                <small class="text-muted d-sm-none">
+                                    <span class="badge bg-info">{{ contacto[5] }}</span>
+                                </small>
+                            </div>
                         </td>
-                        <td>
-                            {% if contacto[3] %}
-                                <a href="tel:{{ contacto[3] }}" class="text-decoration-none">
-                                    <i class="fas fa-phone"></i> {{ contacto[3] }}
-                                </a>
-                            {% else %}
-                                <span class="text-muted">Sin teléfono</span>
-                            {% endif %}
+                        <td class="d-none d-md-table-cell">
+                            <div class="d-flex align-items-center gap-2">
+                                {% if contacto[3] %}
+                                    <a href="tel:{{ contacto[3] }}" class="text-decoration-none me-2">
+                                        <i class="fas fa-phone"></i> {{ contacto[3] }}
+                                    </a>
+                                    <a href="https://wa.me/{{ contacto[3] }}?" class="text-success" title="WhatsApp">
+                                        <i class="fab fa-whatsapp fa-lg"></i>
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Sin teléfono</span>
+                                {% endif %}
+                            </div>
                         </td>
-                        <td>
+                        <td class="d-none d-lg-table-cell">
                             {% if contacto[4] %}
                                 <a href="mailto:{{ contacto[4] }}" class="text-decoration-none">
                                     <i class="fas fa-envelope"></i> {{ contacto[4] }}
@@ -84,27 +169,37 @@
                                 <span class="text-muted">Sin email</span>
                             {% endif %}
                         </td>
-                        <td>
+                        <td class="d-none d-sm-table-cell">
                             <span class="badge bg-info">{{ contacto[5] }}</span>
                         </td>
-                        <td>
+                        <td class="d-none d-md-table-cell">
                             {% if contacto[6] %}
-                                <span class="badge bg-warning text-dark">
-                                    {{ contacto[6].strftime('%d/%m/%Y') }}
-                                </span>
+                                <div class="event-info">
+                                    <span class="badge bg-warning-soft text-dark mb-1">
+                                        <i class="fas fa-calendar-day me-1"></i>
+                                        {{ contacto[6].strftime('%d/%m/%Y') }}
+                                    </span>
+                                    {% if contacto[7] %}
+                                        <div class="event-description">
+                                            <small class="text-muted">{{ contacto[7] }}</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
                             {% else %}
                                 <span class="text-muted">Sin evento</span>
                             {% endif %}
                         </td>
                         <td>
-                            <div class="btn-group" role="group">
+                            <div class="btn-group flex-column flex-sm-row" role="group">
                                 <a href="{{ url_for('editar_contacto', contacto_id=contacto[0]) }}" 
-                                    class="btn btn-sm btn-outline-primary">
+                                    class="btn btn-sm btn-outline-primary mb-1 mb-sm-0" title="Editar">
                                     <i class="fas fa-edit"></i>
+                                    <span class="d-none d-lg-inline ms-1">Editar</span>
                                 </a>
                                 <button type="button" class="btn btn-sm btn-outline-danger" 
-                                        onclick="confirmarEliminar({{ contacto[0] }}, '{{ contacto[1] }} {{ contacto[2] }}')">
+                                        onclick="confirmarEliminar({{ contacto[0] }}, '{{ contacto[1] }} {{ contacto[2] }}')" title="Eliminar">
                                     <i class="fas fa-trash"></i>
+                                    <span class="d-none d-lg-inline ms-1">Eliminar</span>
                                 </button>
                             </div>
                         </td>
@@ -131,6 +226,9 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Script para exportar a Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <!-- Modal de confirmación de eliminación -->
 <div class="modal fade" id="modalEliminar" tabindex="-1">

@@ -4,47 +4,165 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h4>
-                    <i class="fas fa-{{ 'edit' if categoria else 'plus' }}"></i> 
-                    {{ titulo }}
+    <div class="col-12 col-md-8 col-lg-6">
+        <!-- Header responsive -->
+        <div class="mb-4">
+            <h1 class="h2 h1-md text-primary-pastel">
+                <i class="fas fa-{{ 'edit' if categoria else 'plus' }} me-2"></i>
+                {{ titulo }}
+            </h1>
+            {% if categoria %}
+            <p class="text-muted mb-0">
+                <i class="fas fa-tag me-1"></i>
+                Modificando: <strong>{{ categoria[1] }}</strong>
+            </p>
+            {% endif %}
+        </div>
+
+        <!-- Formulario principal -->
+        <div class="card card-pastel shadow-sm">
+            <div class="card-header bg-{{ 'primary' if categoria else 'success' }}-pastel text-white">
+                <h4 class="mb-0 d-flex align-items-center">
+                    <i class="fas fa-{{ 'edit' if categoria else 'plus-circle' }} me-2"></i>
+                    {{ 'Editar' if categoria else 'Nueva' }} Categoría
                 </h4>
             </div>
             <div class="card-body">
-                <form method="POST">
+                <form method="POST" novalidate>
                     <div class="mb-3">
-                        <label for="nombre" class="form-label">Nombre de la Categoría *</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" 
-                               value="{{ categoria[1] if categoria else '' }}" 
-                               required maxlength="50" 
-                               placeholder="Ej: Colegio, Médicos, Vecinos...">
-                        <div class="form-text">Máximo 50 caracteres</div>
+                        <label for="nombre" class="form-label fw-medium">
+                            <i class="fas fa-tag me-1 text-primary-pastel"></i>
+                            Nombre de la Categoría <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control form-control-pastel" id="nombre" name="nombre" 
+                                value="{{ categoria[1] if categoria else '' }}" 
+                                required maxlength="50" 
+                                placeholder="Ej: Colegio, Médicos, Vecinos..."
+                                autocomplete="off">
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Máximo 50 caracteres
+                        </div>
+                        <div class="invalid-feedback">
+                            Por favor ingresa un nombre válido para la categoría.
+                        </div>
                     </div>
                     
                     {% if categoria %}
                     <div class="mb-3">
-                        <label class="form-label">Información</label>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i>
-                            Esta categoría tiene {{ db.contar_contactos_por_categoria(categoria[0]) }} contactos asociados.
+                        <label class="form-label fw-medium">
+                            <i class="fas fa-chart-bar me-1 text-info-pastel"></i>
+                            Información de la Categoría
+                        </label>
+                        <div class="alert alert-info-pastel border-0">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-users fa-2x text-info-pastel me-3"></i>
+                                <div>
+                                    <strong class="d-block">--</strong>
+                                    <small class="text-muted">contactos asociados</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {% endif %}
                     
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('listar_categorias') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Volver
+                    <!-- Ayuda contextual -->
+                    <div class="alert alert-light-pastel border-0 mb-3">
+                        <i class="fas fa-lightbulb me-2 text-warning-pastel"></i>
+                        <strong>Consejo:</strong> Usa nombres descriptivos como "Trabajo", "Familia", "Servicios médicos", etc.
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 mt-4">
+                        <a href="{{ url_for('listar_categorias') }}" class="btn btn-secondary-pastel btn-sm btn-md-normal">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            <span class="d-none d-sm-inline">Volver a</span> Lista
                         </a>
-                        <button type="submit" class="btn btn-{{ 'primary' if categoria else 'success' }}">
-                            <i class="fas fa-save"></i> 
-                            {{ 'Actualizar' if categoria else 'Crear' }} Categoría
-                        </button>
+                        <div class="d-flex gap-2">
+                            {% if categoria %}
+                            <button type="button" class="btn btn-danger-pastel btn-sm btn-md-normal" onclick="confirmarEliminar()">
+                                <i class="fas fa-trash-alt me-1"></i>
+                                <span class="d-none d-sm-inline">Eliminar</span>
+                            </button>
+                            {% endif %}
+                            <button type="submit" class="btn btn-{{ 'primary' if categoria else 'success' }}-pastel btn-sm btn-md-normal">
+                                <i class="fas fa-save me-1"></i>
+                                {{ 'Actualizar' if categoria else 'Crear' }}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Botón flotante para móvil -->
+<div class="mobile-fab d-md-none">
+    <a href="{{ url_for('listar_categorias') }}" class="btn btn-primary-pastel btn-floating">
+        <i class="fas fa-list"></i>
+    </a>
+</div>
+
+<script>
+// Validación del formulario
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const nameInput = document.getElementById('nombre');
+    
+    // Validación en tiempo real
+    nameInput.addEventListener('blur', function() {
+        validateField(this);
+    });
+    
+    nameInput.addEventListener('input', function() {
+        if (this.classList.contains('is-invalid')) {
+            validateField(this);
+        }
+    });
+    
+    // Validación al enviar
+    form.addEventListener('submit', function(e) {
+        if (!validateField(nameInput)) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+    
+    function validateField(field) {
+        const isValid = field.checkValidity() && field.value.trim().length > 0;
+        
+        if (isValid) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        } else {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+        }
+        
+        return isValid;
+    }
+    
+    // Enfocar automáticamente en el campo de nombre
+    nameInput.focus();
+});
+
+{% if categoria %}
+// Función para confirmar eliminación
+function confirmarEliminar() {
+    const contactosAsociados = 0; // Placeholder - se debe consultar en el backend
+    
+    if (contactosAsociados > 0) {
+        alert('No puedes eliminar esta categoría porque tiene ' + contactosAsociados + ' contactos asociados. Primero debes cambiar la categoría de esos contactos.');
+        return;
+    }
+    
+    if (confirm('¿Estás seguro de que quieres eliminar esta categoría? Esta acción no se puede deshacer.')) {
+        // Aquí podrías agregar la lógica para eliminar la categoría
+        // Por ejemplo, redirigir a una URL de eliminación
+        window.location.href = `{{ url_for('eliminar_categoria', categoria_id=categoria[0]) }}`;
+    }
+}
+{% endif %}
+</script>
 {% endblock %}

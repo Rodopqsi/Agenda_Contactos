@@ -46,7 +46,7 @@ class DatabaseManager:
             cursor = conn.cursor()
             query = """
                 SELECT c.id_contacto, c.nombre, c.apellido, c.telefono, 
-                       c.correo, cat.nombre_categoria, c.fecha_evento
+                       c.correo, cat.nombre_categoria, c.fecha_evento, c.descripcion_evento
                 FROM contactos c
                 JOIN categorias cat ON c.id_categoria = cat.id_categoria
                 ORDER BY c.nombre, c.apellido
@@ -106,45 +106,39 @@ class DatabaseManager:
         conn = self.get_connection()
         if not conn:
             return []
-        
+    
         try:
             cursor = conn.cursor()
-            ref_cursor = cursor.var(cx_Oracle.CURSOR)
-            cursor.callproc("obtener_recordatorios_hoy", [ref_cursor])
-            
-            result_cursor = ref_cursor.getvalue()
+            result_cursor = cursor.callfunc("obtener_recordatorios_hoy", cx_Oracle.CURSOR)
             recordatorios = result_cursor.fetchall()
             result_cursor.close()
-            
             return recordatorios
         except Exception as e:
             print(f"Error obteniendo recordatorios: {e}")
             return []
         finally:
             conn.close()
+
     
     def obtener_eventos_semana(self):
         conn = self.get_connection()
         if not conn:
             return []
-        
+    
         try:
             cursor = conn.cursor()
-            ref_cursor = cursor.var(cx_Oracle.CURSOR)
-            cursor.callproc("obtener_eventos_semana", [ref_cursor])
-            
-            result_cursor = ref_cursor.getvalue()
+            result_cursor = cursor.callfunc("obtener_eventos_semana", cx_Oracle.CURSOR)
             eventos = result_cursor.fetchall()
             result_cursor.close()
-            
             return eventos
         except Exception as e:
             print(f"Error obteniendo eventos de la semana: {e}")
             return []
         finally:
             conn.close()
+
     
-    def agregar_contacto(self, nombre, apellido, telefono, correo, categoria, fecha_evento=None):
+    def agregar_contacto(self, nombre, apellido, telefono, correo, categoria, fecha_evento=None, descripcion_evento=None):
         conn = self.get_connection()
         if not conn:
             return False
@@ -152,13 +146,11 @@ class DatabaseManager:
         try:
             cursor = conn.cursor()
             resultado = cursor.var(cx_Oracle.NUMBER)
-            
-            # Convertir fecha si es string
             if fecha_evento and isinstance(fecha_evento, str):
                 fecha_evento = datetime.strptime(fecha_evento, '%Y-%m-%d').date()
             
             cursor.callproc("agregar_contacto", [
-                nombre, apellido, telefono, correo, categoria, fecha_evento, resultado
+                nombre, apellido, telefono, correo, categoria, fecha_evento, descripcion_evento, resultado
             ])
             
             return resultado.getvalue() > 0
@@ -168,7 +160,7 @@ class DatabaseManager:
         finally:
             conn.close()
     
-    def actualizar_contacto(self, contacto_id, nombre, apellido, telefono, correo, categoria, fecha_evento=None):
+    def actualizar_contacto(self, contacto_id, nombre, apellido, telefono, correo, categoria, fecha_evento=None, descripcion_evento=None):
         conn = self.get_connection()
         if not conn:
             return False
@@ -176,13 +168,12 @@ class DatabaseManager:
         try:
             cursor = conn.cursor()
             resultado = cursor.var(cx_Oracle.NUMBER)
-            
-            # Convertir fecha si es string
+
             if fecha_evento and isinstance(fecha_evento, str):
                 fecha_evento = datetime.strptime(fecha_evento, '%Y-%m-%d').date()
             
             cursor.callproc("actualizar_contacto", [
-                contacto_id, nombre, apellido, telefono, correo, categoria, fecha_evento, resultado
+                contacto_id, nombre, apellido, telefono, correo, categoria, fecha_evento, descripcion_evento, resultado
             ])
             
             return resultado.getvalue() > 0
@@ -243,8 +234,6 @@ class DatabaseManager:
             cursor = conn.cursor()
             resultado = cursor.var(cx_Oracle.NUMBER)
             cursor.callproc("agregar_categoria", [nombre, resultado])
-
-            # AGREGAR COMMIT
             conn.commit()
 
             valor = resultado.getvalue()
@@ -255,7 +244,6 @@ class DatabaseManager:
             else:
                 return {'success': True, 'id': valor}
         except Exception as e:
-            # AGREGAR ROLLBACK
             conn.rollback()
             print(f"Error agregando categoría: {e}")
             return {'success': False, 'error': str(e)}
@@ -283,7 +271,6 @@ class DatabaseManager:
             else:
                 return {'success': True, 'id': valor}
         except Exception as e:
-            # AGREGAR ROLLBACK
             conn.rollback()
             print(f"Error agregando categoría: {e}")
             return {'success': False, 'error': str(e)}
@@ -299,8 +286,6 @@ class DatabaseManager:
             cursor = conn.cursor()
             resultado = cursor.var(cx_Oracle.NUMBER)
             cursor.callproc("eliminar_categoria", [categoria_id, resultado])
-
-            # AGREGAR COMMIT AQUÍ
             conn.commit()
 
             valor = resultado.getvalue()

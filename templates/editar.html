@@ -4,52 +4,100 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h4><i class="fas fa-edit"></i> Editar Contacto</h4>
+    <div class="col-12 col-md-10 col-lg-8">
+        <!-- Header responsive -->
+        <div class="mb-4">
+            <h1 class="h2 h1-md text-primary-pastel">
+                <i class="fas fa-edit me-2"></i>
+                <span class="d-none d-sm-inline">Editar</span> Contacto
+            </h1>
+            <p class="text-muted mb-0">
+                <i class="fas fa-user me-1"></i>
+                Modificando: <strong>{{ contacto[1] }} {{ contacto[2] }}</strong>
+            </p>
+        </div>
+
+        <!-- Formulario principal -->
+        <div class="card card-pastel shadow-sm">
+            <div class="card-header bg-primary-pastel text-white">
+                <h4 class="mb-0 d-flex align-items-center">
+                    <i class="fas fa-user-edit me-2"></i>
+                    Información del Contacto
+                </h4>
             </div>
             <div class="card-body">
-                <form method="POST">
+                <form method="POST" novalidate>
+                    <!-- Datos personales -->
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label for="nombre" class="form-label">Nombre *</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" 
-                                       value="{{ contacto[1] }}" required>
+                                <label for="nombre" class="form-label fw-medium">
+                                    <i class="fas fa-user me-1 text-primary-pastel"></i>
+                                    Nombre <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control form-control-pastel" id="nombre" name="nombre" 
+                                       value="{{ contacto[1] }}" required placeholder="Ingresa el nombre">
+                                <div class="invalid-feedback">
+                                    Por favor ingresa un nombre válido.
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label for="apellido" class="form-label">Apellido *</label>
-                                <input type="text" class="form-control" id="apellido" name="apellido" 
-                                       value="{{ contacto[2] }}" required>
+                                <label for="apellido" class="form-label fw-medium">
+                                    <i class="fas fa-user me-1 text-primary-pastel"></i>
+                                    Apellido <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control form-control-pastel" id="apellido" name="apellido" 
+                                       value="{{ contacto[2] }}" required placeholder="Ingresa el apellido">
+                                <div class="invalid-feedback">
+                                    Por favor ingresa un apellido válido.
+                                </div>
                             </div>
                         </div>
                     </div>
                     
+                    <!-- Información de contacto -->
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label for="telefono" class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="telefono" name="telefono" 
-                                       value="{{ contacto[3] or '' }}">
+                                <label for="telefono" class="form-label fw-medium">
+                                    <i class="fas fa-phone me-1 text-info-pastel"></i>
+                                    Teléfono
+                                </label>
+                                <input type="tel" class="form-control form-control-pastel" id="telefono" name="telefono" 
+                                       value="{{ contacto[3] or '' }}" placeholder="987 654 321" pattern="[0-9\s\-\+\(\)]*">
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Formato: 987 654 321
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label for="correo" class="form-label">Correo Electrónico</label>
-                                <input type="email" class="form-control" id="correo" name="correo" 
-                                       value="{{ contacto[4] or '' }}">
+                                <label for="correo" class="form-label fw-medium">
+                                    <i class="fas fa-envelope me-1 text-info-pastel"></i>
+                                    Correo Electrónico
+                                </label>
+                                <input type="email" class="form-control form-control-pastel" id="correo" name="correo" 
+                                       value="{{ contacto[4] or '' }}" placeholder="ejemplo@email.com">
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Formato: nombre@dominio.com
+                                </div>
                             </div>
                         </div>
                     </div>
                     
+                    <!-- Categoría y fecha -->
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label for="categoria" class="form-label">Categoría *</label>
-                                <select class="form-select" id="categoria" name="categoria" required>
+                                <label for="categoria" class="form-label fw-medium">
+                                    <i class="fas fa-tag me-1 text-warning-pastel"></i>
+                                    Categoría <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select form-control-pastel" id="categoria" name="categoria" required>
                                     {% for categoria in categorias %}
                                     <option value="{{ categoria[0] }}" 
                                             {{ 'selected' if categoria[1] == contacto[5] }}>
@@ -57,28 +105,148 @@
                                     </option>
                                     {% endfor %}
                                 </select>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona una categoría.
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label for="fecha_evento" class="form-label">Fecha de Evento</label>
-                                <input type="date" class="form-control" id="fecha_evento" name="fecha_evento" 
+                                <label for="fecha_evento" class="form-label fw-medium">
+                                    <i class="fas fa-calendar-alt me-1 text-warning-pastel"></i>
+                                    Fecha de Evento
+                                </label>
+                                <input type="date" class="form-control form-control-pastel" id="fecha_evento" name="fecha_evento" 
                                        value="{{ contacto[6].strftime('%Y-%m-%d') if contacto[6] else '' }}">
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Opcional: Fecha para recordatorio
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('listar_contactos') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Volver
+                    <!-- Descripción del evento -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="descripcion_evento" class="form-label fw-medium">
+                                    <i class="fas fa-sticky-note me-1 text-info-pastel"></i>
+                                    Descripción del Evento
+                                </label>
+                                <textarea class="form-control form-control-pastel" id="descripcion_evento" name="descripcion_evento" 
+                                          rows="2" maxlength="200" placeholder="Ej: Cumpleaños, Reunión anual, Cita médica...">{{ contacto[7] if contacto[7] else '' }}</textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Opcional: Breve descripción del propósito del evento (máx. 200 caracteres)
+                                </div>
+                                <div class="char-counter">
+                                    <small class="text-muted">
+                                        <span id="charCount">{{ contacto[7]|length if contacto[7] else 0 }}</span>/200 caracteres
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información adicional -->
+                    <div class="alert alert-info-pastel border-0 mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Información:</strong> Este contacto fue 
+                        {% if contacto[7] %}
+                            modificado por última vez el {{ contacto[7].strftime('%d/%m/%Y a las %H:%M') }}
+                        {% else %}
+                            creado recientemente
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 mt-4">
+                        <a href="{{ url_for('listar_contactos') }}" class="btn btn-secondary-pastel btn-sm btn-md-normal">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            <span class="d-none d-sm-inline">Volver a</span> Lista
                         </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Actualizar Contacto
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-danger-pastel btn-sm btn-md-normal" onclick="confirmarEliminar()">
+                                <i class="fas fa-trash-alt me-1"></i>
+                                <span class="d-none d-sm-inline">Eliminar</span>
+                            </button>
+                            <button type="submit" class="btn btn-primary-pastel btn-sm btn-md-normal">
+                                <i class="fas fa-save me-1"></i>
+                                Actualizar
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Botón flotante para móvil -->
+<div class="mobile-fab d-md-none">
+    <a href="{{ url_for('listar_contactos') }}" class="btn btn-primary-pastel btn-floating">
+        <i class="fas fa-list"></i>
+    </a>
+</div>
+
+<script>
+// Validación del formulario
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input[required], select[required]');
+    
+    // Validación en tiempo real
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
+            }
+        });
+    });
+    
+    // Validación al enviar
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+    
+    function validateField(field) {
+        const isValid = field.checkValidity();
+        
+        if (isValid) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        } else {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+        }
+        
+        return isValid;
+    }
+});
+
+// Función para confirmar eliminación
+function confirmarEliminar() {
+    if (confirm('¿Estás seguro de que quieres eliminar este contacto? Esta acción no se puede deshacer.')) {
+        // Aquí podrías agregar la lógica para eliminar el contacto
+        // Por ejemplo, redirigir a una URL de eliminación
+        window.location.href = `{{ url_for('eliminar_contacto', contacto_id=contacto[0]) }}`;
+    }
+}
+</script>
 {% endblock %}
