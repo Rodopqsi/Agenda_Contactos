@@ -7,9 +7,9 @@
     <div class="col-12 col-lg-10">
         <!-- Header principal -->
         <div class="mb-4 mb-md-5">
-            <h1 class="display-6 display-md-5 fw-bold mb-3 text-primary-pastel">
+            <h1 class="display-6 display-md-5 fw-bold mb-3" style="color:white">
                 <i class="fas fa-tachometer-alt me-2"></i>
-                <span class="d-none d-sm-inline">Panel de</span> Control
+                <span class="d-none d-sm-inline" >Panel de</span> Control
             </h1>
             <p class="text-muted mb-0">
                 Gestiona tus contactos y mantente al día con tus eventos importantes
@@ -29,6 +29,7 @@
                         {% if recordatorio|length > 7 and recordatorio[7] %}
                         <br><small class="text-muted">{{ recordatorio[7] }}</small>
                         {% endif %}
+                        
                     </div>
                     <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
                 </div>
@@ -98,6 +99,7 @@
                                             <small class="text-muted">{{ evento[7] }}</small>
                                         </div>
                                         {% endif %}
+                                        
                                     </td>
                                 </tr>
                                 {% endfor %}

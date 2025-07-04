@@ -142,10 +142,10 @@
                                     Descripción del Evento
                                 </label>
                                 <textarea class="form-control form-control-pastel" id="descripcion_evento" name="descripcion_evento" 
-                                          rows="2" maxlength="200" placeholder="Ej: Cumpleaños, Reunión anual, Cita médica..."
-                                          autocomplete="off"
-                                          spellcheck="true"
-                                          inputmode="text"></textarea>
+                                            rows="2" maxlength="200" placeholder="Ej: Cumpleaños, Reunión anual, Cita médica..."
+                                            autocomplete="off"
+                                            spellcheck="true"
+                                            inputmode="text"></textarea>
                                 <div class="form-text">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Opcional: Breve descripción del propósito del evento (máx. 200 caracteres)
@@ -187,7 +187,19 @@
 // Validación del formulario
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
+    if (!form) return;
+    
     const inputs = form.querySelectorAll('input[required], select[required]');
+    
+    // Contador de caracteres para descripción
+    const descripcionTextarea = document.getElementById('descripcion_evento');
+    const charCount = document.getElementById('charCount');
+    
+    if (descripcionTextarea && charCount) {
+        descripcionTextarea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+    }
     
     // Validación en tiempo real
     inputs.forEach(input => {
@@ -206,20 +218,50 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         let isValid = true;
         
+        // Validar campos requeridos
         inputs.forEach(input => {
             if (!validateField(input)) {
                 isValid = false;
             }
         });
         
+        // Validar campos específicos
+        const nombre = document.getElementById('nombre');
+        const apellido = document.getElementById('apellido');
+        const categoria = document.getElementById('categoria');
+        
+        if (nombre && nombre.value.trim() === '') {
+            nombre.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (apellido && apellido.value.trim() === '') {
+            apellido.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (categoria && categoria.value === '') {
+            categoria.classList.add('is-invalid');
+            isValid = false;
+        }
+        
         if (!isValid) {
             e.preventDefault();
             e.stopPropagation();
+            
+            // Mostrar mensaje de error
+            const firstInvalidField = form.querySelector('.is-invalid');
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
     });
     
     function validateField(field) {
-        const isValid = field.checkValidity();
+        if (!field) return true;
+        
+        const isValid = field.checkValidity() && field.value.trim() !== '';
         
         if (isValid) {
             field.classList.remove('is-invalid');

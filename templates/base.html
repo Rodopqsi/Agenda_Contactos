@@ -18,6 +18,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="format-detection" content="telephone=no">
     
+    <!-- Desactivar APIs de rastreo innecesarias -->
+    <meta http-equiv="Permissions-Policy" content="attribution-reporting=(), browsing-topics=(), interest-cohort=(), private-state-token-redemption=(), private-state-token-issuance=()">
+    
     <!-- Estilos inline para prevenir FOUC -->
     <style>
         html { overflow-x: hidden; }

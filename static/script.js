@@ -21,13 +21,14 @@ function actualizarRecordatorios() {
     }, 1000);
 }
 
-// Validación de formularios
+// Inicialización principal
 document.addEventListener('DOMContentLoaded', function() {
-    // Validar teléfono
+    // Validar teléfono - permitir números, espacios, guiones y paréntesis
     const telefonoInput = document.getElementById('telefono');
     if (telefonoInput) {
         telefonoInput.addEventListener('input', function() {
-            const valor = this.value.replace(/\D/g, ''); // Solo números
+            // Permitir números, espacios, guiones, paréntesis y el símbolo +
+            const valor = this.value.replace(/[^0-9\s\-\+\(\)]/g, '');
             this.value = valor;
         });
     }
@@ -50,6 +51,47 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Mejoras para responsive móvil
     initializeMobileOptimizations();
+    
+    // Inicializar filtros
+    filtrarCategorias();
+    filtrarContactos();
+    
+    // Validación en tiempo real para el formulario de categorías
+    const nombreInput = document.getElementById('nombre');
+    if (nombreInput) {
+        nombreInput.addEventListener('input', function() {
+            const valor = this.value.trim();
+            const contador = document.createElement('small');
+            contador.className = 'form-text';
+            contador.textContent = `${valor.length}/50 caracteres`;
+            
+            // Remover contador anterior
+            const contadorAnterior = this.parentNode.querySelector('.contador-caracteres');
+            if (contadorAnterior) {
+                contadorAnterior.remove();
+            }
+            
+            // Agregar nuevo contador
+            contador.className += ' contador-caracteres';
+            this.parentNode.appendChild(contador);
+            
+            // Validar longitud
+            if (valor.length > 50) {
+                this.classList.add('is-invalid');
+                contador.className += ' text-danger';
+            } else {
+                this.classList.remove('is-invalid');
+                contador.className = contador.className.replace(' text-danger', '');
+            }
+        });
+    }
+    
+    // Funciones relacionadas con eventos
+    setupCharacterCounter();
+    setupEventDescriptionToggle();
+    setupEventTooltips();
+    markExpiredEvents();
+    enhanceEventFiltering();
 });
 
 // Función para optimizaciones móviles
@@ -300,44 +342,6 @@ function confirmarEliminarCategoria(id, nombre, contactos) {
     modal.show();
 }
 
-// Validación en tiempo real para el formulario de categorías
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar filtro de categorías
-    filtrarCategorias();
-    
-    // Inicializar filtro de contactos
-    filtrarContactos();
-    
-    const nombreInput = document.getElementById('nombre');
-    if (nombreInput) {
-        nombreInput.addEventListener('input', function() {
-            const valor = this.value.trim();
-            const contador = document.createElement('small');
-            contador.className = 'form-text';
-            contador.textContent = `${valor.length}/50 caracteres`;
-            
-            // Remover contador anterior
-            const contadorAnterior = this.parentNode.querySelector('.contador-caracteres');
-            if (contadorAnterior) {
-                contadorAnterior.remove();
-            }
-            
-            // Agregar nuevo contador
-            contador.className += ' contador-caracteres';
-            this.parentNode.appendChild(contador);
-            
-            // Validar longitud
-            if (valor.length > 50) {
-                this.classList.add('is-invalid');
-                contador.className += ' text-danger';
-            } else {
-                this.classList.remove('is-invalid');
-                contador.className = contador.className.replace(' text-danger', '');
-            }
-        });
-    }
-});
-
 // Filtro de contactos en tiempo real
 function filtrarContactos() {
     const filtroTexto = document.getElementById('filtroContacto');
@@ -457,6 +461,55 @@ function filtrarContactos() {
     window.aplicarFiltrosContactos = aplicarFiltrosContactos;
 }
 
+// Función para resaltar texto en categorías
+function resaltarTexto(texto, termino) {
+    if (!termino || !texto) return texto;
+    
+    const regex = new RegExp(`(${termino})`, 'gi');
+    return texto.replace(regex, '<span class="filtro-highlight">$1</span>');
+}
+
+// Función para mostrar mensaje sin resultados en categorías
+function mostrarMensajeSinResultados(categoriasVisibles) {
+    const tbody = document.querySelector('.table tbody');
+    let mensajeExistente = document.getElementById('mensajeSinResultados');
+    
+    if (categoriasVisibles === 0) {
+        if (!mensajeExistente) {
+            const mensaje = document.createElement('tr');
+            mensaje.id = 'mensajeSinResultados';
+            mensaje.innerHTML = `
+                <td colspan="5" class="text-center py-4">
+                    <i class="fas fa-search fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No se encontraron categorías que coincidan con tu búsqueda</p>
+                    <small class="text-muted">Intenta cambiar los filtros o términos de búsqueda</small>
+                </td>
+            `;
+            tbody.appendChild(mensaje);
+        }
+    } else {
+        if (mensajeExistente) {
+            mensajeExistente.remove();
+        }
+    }
+}
+
+// Función para actualizar contador de resultados
+function actualizarContadorResultados(visibles, total) {
+    const contador = document.getElementById('contadorResultados');
+    
+    if (contador) {
+        if (visibles === total) {
+            contador.textContent = `Total de categorías: ${total}`;
+            contador.classList.remove('filtrado');
+        } else {
+            contador.textContent = `Mostrando ${visibles} de ${total} categorías`;
+            contador.classList.add('filtrado');
+        }
+    }
+}
+
+// Función para resaltar texto en contactos
 function resaltarTextoContacto(texto, termino) {
     if (!termino || !texto) return texto;
     
@@ -502,6 +555,48 @@ function actualizarContadorContactos(visibles, total) {
     }
 }
 
+// Función para limpiar filtros de categorías
+function limpiarFiltro() {
+    const filtroTexto = document.getElementById('filtroCategoria');
+    const filtroTipo = document.getElementById('filtroTipo');
+    const tabla = document.querySelector('.table tbody');
+    
+    // Limpiar campos
+    if (filtroTexto) filtroTexto.value = '';
+    if (filtroTipo) filtroTipo.value = '';
+    
+    // Mostrar todas las filas y restaurar contenido original
+    if (tabla) {
+        const filas = tabla.getElementsByTagName('tr');
+        for (let i = 0; i < filas.length; i++) {
+            const fila = filas[i];
+            fila.style.display = '';
+            
+            // Restaurar contenido original
+            const celdaNombre = fila.querySelector('td:nth-child(2)');
+            const celdaTipo = fila.querySelector('td:nth-child(4)');
+            
+            if (celdaNombre && celdaNombre.getAttribute('data-original')) {
+                celdaNombre.innerHTML = celdaNombre.getAttribute('data-original');
+            }
+            if (celdaTipo && celdaTipo.getAttribute('data-original')) {
+                celdaTipo.innerHTML = celdaTipo.getAttribute('data-original');
+            }
+        }
+    }
+    
+    // Remover mensaje de sin resultados
+    const mensaje = document.getElementById('mensajeSinResultados');
+    if (mensaje) {
+        mensaje.remove();
+    }
+    
+    // Actualizar contador
+    const total = tabla ? tabla.getElementsByTagName('tr').length : 0;
+    actualizarContadorResultados(total, total);
+}
+
+// Función para limpiar filtros de contactos
 function limpiarFiltrosContactos() {
     const filtroTexto = document.getElementById('filtroContacto');
     const filtroCategoria = document.getElementById('filtroCategoriaContacto');
@@ -1105,9 +1200,13 @@ function setupCharacterCounter() {
 // Función para mostrar/ocultar el campo de descripción según si hay fecha de evento
 function setupEventDescriptionToggle() {
     const fechaEvento = document.getElementById('fecha_evento');
-    const descripcionContainer = document.querySelector('#descripcion_evento').closest('.row');
+    const descripcionEvento = document.getElementById('descripcion_evento');
     
-    if (!fechaEvento || !descripcionContainer) return;
+    // Verificar que ambos elementos existen antes de proceder
+    if (!fechaEvento || !descripcionEvento) return;
+    
+    const descripcionContainer = descripcionEvento.closest('.row');
+    if (!descripcionContainer) return;
     
     function toggleDescriptionField() {
         if (fechaEvento.value) {
@@ -1193,15 +1292,6 @@ function enhanceEventFiltering() {
         });
     }
 }
-
-// Inicializar funciones relacionadas con eventos
-document.addEventListener('DOMContentLoaded', function() {
-    setupCharacterCounter();
-    setupEventDescriptionToggle();
-    setupEventTooltips();
-    markExpiredEvents();
-    enhanceEventFiltering();
-});
 
 // Agregar a las funciones de filtrado existentes
 if (typeof filtrarContactos === 'function') {

@@ -80,7 +80,7 @@
                                     Correo Electrónico
                                 </label>
                                 <input type="email" class="form-control form-control-pastel" id="correo" name="correo" 
-                                       value="{{ contacto[4] or '' }}" placeholder="ejemplo@email.com">
+                                        value="{{ contacto[4] or '' }}" placeholder="ejemplo@email.com">
                                 <div class="form-text">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Formato: nombre@dominio.com
@@ -117,7 +117,7 @@
                                     Fecha de Evento
                                 </label>
                                 <input type="date" class="form-control form-control-pastel" id="fecha_evento" name="fecha_evento" 
-                                       value="{{ contacto[6].strftime('%Y-%m-%d') if contacto[6] else '' }}">
+                                        value="{{ contacto[6].strftime('%Y-%m-%d') if contacto[6] else '' }}">
                                 <div class="form-text">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Opcional: Fecha para recordatorio
@@ -135,7 +135,7 @@
                                     Descripción del Evento
                                 </label>
                                 <textarea class="form-control form-control-pastel" id="descripcion_evento" name="descripcion_evento" 
-                                          rows="2" maxlength="200" placeholder="Ej: Cumpleaños, Reunión anual, Cita médica...">{{ contacto[7] if contacto[7] else '' }}</textarea>
+                                            rows="2" maxlength="200" placeholder="Ej: Cumpleaños, Reunión anual, Cita médica...">{{ contacto[7] if contacto[7] else '' }}</textarea>
                                 <div class="form-text">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Opcional: Breve descripción del propósito del evento (máx. 200 caracteres)
@@ -152,12 +152,7 @@
                     <!-- Información adicional -->
                     <div class="alert alert-info-pastel border-0 mb-3">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Información:</strong> Este contacto fue 
-                        {% if contacto[7] %}
-                            modificado por última vez el {{ contacto[7].strftime('%d/%m/%Y a las %H:%M') }}
-                        {% else %}
-                            creado recientemente
-                        {% endif %}
+                        <strong>Información:</strong> Este contacto fue creado recientemente
                     </div>
                     
                     <!-- Botones de acción -->
@@ -194,7 +189,21 @@
 // Validación del formulario
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
+    if (!form) return;
+    
     const inputs = form.querySelectorAll('input[required], select[required]');
+    
+    // Contador de caracteres para descripción
+    const descripcionTextarea = document.getElementById('descripcion_evento');
+    const charCount = document.getElementById('charCount');
+    
+    if (descripcionTextarea && charCount) {
+        descripcionTextarea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+        // Inicializar contador
+        charCount.textContent = descripcionTextarea.value.length;
+    }
     
     // Validación en tiempo real
     inputs.forEach(input => {
@@ -213,20 +222,50 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         let isValid = true;
         
+        // Validar campos requeridos
         inputs.forEach(input => {
             if (!validateField(input)) {
                 isValid = false;
             }
         });
         
+        // Validar campos específicos
+        const nombre = document.getElementById('nombre');
+        const apellido = document.getElementById('apellido');
+        const categoria = document.getElementById('categoria');
+        
+        if (nombre && nombre.value.trim() === '') {
+            nombre.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (apellido && apellido.value.trim() === '') {
+            apellido.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (categoria && categoria.value === '') {
+            categoria.classList.add('is-invalid');
+            isValid = false;
+        }
+        
         if (!isValid) {
             e.preventDefault();
             e.stopPropagation();
+            
+            // Mostrar mensaje de error
+            const firstInvalidField = form.querySelector('.is-invalid');
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
     });
     
     function validateField(field) {
-        const isValid = field.checkValidity();
+        if (!field) return true;
+        
+        const isValid = field.checkValidity() && field.value.trim() !== '';
         
         if (isValid) {
             field.classList.remove('is-invalid');

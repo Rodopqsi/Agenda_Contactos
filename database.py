@@ -147,21 +147,50 @@ class DatabaseManager:
     def agregar_contacto(self, nombre, apellido, telefono, correo, categoria, fecha_evento=None, descripcion_evento=None):
         conn = self.get_connection()
         if not conn:
+            print("Error: No se pudo establecer conexión con la base de datos")
             return False
         
         try:
             cursor = conn.cursor()
             resultado = cursor.var(cx_Oracle.NUMBER)
+            
+            # Convertir fecha si es string
             if fecha_evento and isinstance(fecha_evento, str):
-                fecha_evento = datetime.strptime(fecha_evento, '%Y-%m-%d').date()
+                try:
+                    fecha_evento = datetime.strptime(fecha_evento, '%Y-%m-%d').date()
+                except ValueError:
+                    print(f"Error: Formato de fecha inválido: {fecha_evento}")
+                    fecha_evento = None
+            
+            print(f"Llamando procedimiento agregar_contacto con: {nombre}, {apellido}, {telefono}, {correo}, {categoria}, {fecha_evento}, {descripcion_evento}")
             
             cursor.callproc("agregar_contacto", [
                 nombre, apellido, telefono, correo, categoria, fecha_evento, descripcion_evento, resultado
             ])
             
-            return resultado.getvalue() > 0
+            resultado_valor = resultado.getvalue()
+            print(f"Resultado del procedimiento: {resultado_valor}")
+            
+            if resultado_valor and resultado_valor > 0:
+                return True
+            elif resultado_valor == -1:
+                print("Error: Error general en el procedimiento")
+                return False
+            elif resultado_valor == -2:
+                print("Error: Contacto duplicado")
+                return False
+            elif resultado_valor == -3:
+                print("Error: Categoría no válida")
+                return False
+            else:
+                print("Error: Resultado inesperado del procedimiento")
+                return False
+                
+        except cx_Oracle.Error as e:
+            print(f"Error de Oracle agregando contacto: {e}")
+            return False
         except Exception as e:
-            print(f"Error agregando contacto: {e}")
+            print(f"Error general agregando contacto: {e}")
             return False
         finally:
             conn.close()
@@ -169,22 +198,53 @@ class DatabaseManager:
     def actualizar_contacto(self, contacto_id, nombre, apellido, telefono, correo, categoria, fecha_evento=None, descripcion_evento=None):
         conn = self.get_connection()
         if not conn:
+            print("Error: No se pudo establecer conexión con la base de datos")
             return False
         
         try:
             cursor = conn.cursor()
             resultado = cursor.var(cx_Oracle.NUMBER)
 
+            # Convertir fecha si es string
             if fecha_evento and isinstance(fecha_evento, str):
-                fecha_evento = datetime.strptime(fecha_evento, '%Y-%m-%d').date()
+                try:
+                    fecha_evento = datetime.strptime(fecha_evento, '%Y-%m-%d').date()
+                except ValueError:
+                    print(f"Error: Formato de fecha inválido: {fecha_evento}")
+                    fecha_evento = None
+            
+            print(f"Llamando procedimiento actualizar_contacto con: {contacto_id}, {nombre}, {apellido}, {telefono}, {correo}, {categoria}, {fecha_evento}, {descripcion_evento}")
             
             cursor.callproc("actualizar_contacto", [
                 contacto_id, nombre, apellido, telefono, correo, categoria, fecha_evento, descripcion_evento, resultado
             ])
             
-            return resultado.getvalue() > 0
+            resultado_valor = resultado.getvalue()
+            print(f"Resultado del procedimiento: {resultado_valor}")
+            
+            if resultado_valor and resultado_valor > 0:
+                return True
+            elif resultado_valor == -1:
+                print("Error: Error general en el procedimiento")
+                return False
+            elif resultado_valor == -2:
+                print("Error: Contacto duplicado")
+                return False
+            elif resultado_valor == -3:
+                print("Error: Categoría no válida")
+                return False
+            elif resultado_valor == -4:
+                print("Error: Contacto no encontrado")
+                return False
+            else:
+                print("Error: Resultado inesperado del procedimiento")
+                return False
+                
+        except cx_Oracle.Error as e:
+            print(f"Error de Oracle actualizando contacto: {e}")
+            return False
         except Exception as e:
-            print(f"Error actualizando contacto: {e}")
+            print(f"Error general actualizando contacto: {e}")
             return False
         finally:
             conn.close()
